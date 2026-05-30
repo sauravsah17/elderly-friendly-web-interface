@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Large media / archives (kept out of the repo)
+*.zip
+*.mp4
+*.mov
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp

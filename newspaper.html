@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News App</title>
+    <link rel="stylesheet" href="newspaper.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="main-nav container flex">
+            <div class="nav-links">
+                <ul class="flex">
+                    <li class="hover-link nav-item" id="ipl" onclick="onNavItemClick('ipl')">IPL</li>
+                    <li class="hover-link nav-item" id="finance" onclick="onNavItemClick('finance')">Finance</li>
+                    <li class="hover-link nav-item" id="politics" onclick="onNavItemClick('politics')">Politics</li>
+                </ul>
+            </div>
+            <div class="search-bar flex">
+                <input id="search-text" type="text" class="news-input" placeholder="e.g. Science">
+                <button id="search-button" class="search-button">Search</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="cards-container container flex" id="cards-container">
+            <!-- ... (your news card template) ... -->
+        </div>
+    </main>
+
+    <template id="template-news-card">
+        <div class="card">
+            <div class="card-header">
+                <img src="https://via.placeholder.com/400x200" alt="news-image" id="news-img">
+            </div>
+            <div class="card-content">
+                <h3 id="news-title">This is the Title</h3>
+                <h6 class="news-source" id="news-source">End Gadget 26/08/2023</h6>
+                <p class="news-desc" id="news-desc">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae
+                    saepe quis voluptatum quisquam vitae doloremque facilis molestias quae ratione cumque!</p>
+                <div class="box">
+                    <button class="tts-button">Read Article</button> <!-- Added TTS button -->
+                    <button class="open-article-button">Open Article</button>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        // JavaScript code with TTS functionality
+        const API_KEY = "15ac037e78a34af583642ee72814b27e";
+        const url = "https://newsapi.org/v2/everything?q=";
+        
+
+        window.addEventListener("load", () => fetchNews("India"));
+
+        function reload() {
+            window.location.reload();
+        }
+
+        async function fetchNews(query) {
+            const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
+            const data = await res.json();
+            bindData(data.articles);
+        }
+
+        // function bindData(articles) {
+        //     const cardsContainer = document.getElementById("cards-container");
+        //     const newsCardTemplate = document.getElementById("template-news-card");
+
+        //     cardsContainer.innerHTML = "";
+
+        //     articles.forEach((article) => {
+        //         if (!article.urlToImage) return;
+        //         const cardClone = newsCardTemplate.content.cloneNode(true);
+        //         fillDataInCard(cardClone, article);
+        //         cardsContainer.appendChild(cardClone);
+        //     });
+        // }
+
+        function bindData(articles = []) {
+            if (!Array.isArray(articles)) {
+                console.error("Invalid 'articles' parameter. Expected an array.");
+                return;
+            }
+
+            const cardsContainer = document.getElementById("cards-container");
+            const newsCardTemplate = document.getElementById("template-news-card");
+
+            cardsContainer.innerHTML = "";
+
+            articles.forEach((article) => {
+                if (!article.urlToImage) return;
+                const cardClone = newsCardTemplate.content.cloneNode(true);
+                fillDataInCard(cardClone, article);
+                cardsContainer.appendChild(cardClone);
+            });
+        }
+
+
+
+        function fillDataInCard(cardClone, article) {
+            const newsImg = cardClone.querySelector("#news-img");
+            const newsTitle = cardClone.querySelector("#news-title");
+            const newsSource = cardClone.querySelector("#news-source");
+            const newsDesc = cardClone.querySelector("#news-desc");
+
+            newsImg.src = article.urlToImage;
+            newsTitle.innerHTML = article.title;
+            newsDesc.innerHTML = article.description;
+
+            const date = new Date(article.publishedAt).toLocaleString("en-US", {
+                timeZone: "Asia/Jakarta"
+            });
+            newsSource.innerHTML = `${article.source.name} · ${date}`;
+            const openArticleButton = cardClone.querySelector(".open-article-button");
+            openArticleButton.addEventListener("click", () => {
+                window.open(article.url, "_blank");
+            });
+            const ttsButton = cardClone.querySelector(".tts-button");
+            ttsButton.addEventListener("click", () => {
+                const summary = article.description; // Change this to your summary field
+                readArticleWithTTS(summary);
+            });
+
+        }
+
+
+        function readArticleWithTTS(text) {
+            if ('speechSynthesis' in window) {
+                const synth = window.speechSynthesis;
+                const utterance = new SpeechSynthesisUtterance(text);
+
+                synth.speak(utterance);
+                utterance.onerror = (event) => {
+                    console.error('TTS Error:', event);
+                };
+            } else {
+                alert("Text-to-speech is not supported in your browser.");
+            }
+        }
+
+        let curSelectedNav = null;
+        function onNavItemClick(id) {
+            fetchNews(id);
+            const navItem = document.getElementById(id);
+            curSelectedNav?.classList.remove("active");
+            curSelectedNav = navItem;
+            curSelectedNav.classList.add("active");
+        }
+
+        const searchButton = document.getElementById("search-button");
+        const searchText = document.getElementById("search-text");
+
+        searchButton.addEventListener("click", () => {
+            const query = searchText.value;
+            if (!query) return;
+            fetchNews(query);
+            curSelectedNav?.classList.remove("active");
+            curSelectedNav = null;
+        });
+    </script>
+</body>
+
+</html>

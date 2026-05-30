@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    
+    div {
+        max-width: 600px;
+        margin: 50px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    
+    #chat-container {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    p {
+        margin: 0;
+        padding: 5px;
+    }
+    
+    p:nth-child(even) {
+        background-color: #4caf50; /* Green background for bot's responses */
+        color: #fff;
+        border-radius: 5px;
+        margin: 5px 0;
+    }
+    
+    p:nth-child(odd) {
+        background-color: #2196F3; /* Blue background for user's input */
+        color: #fff;
+        border-radius: 5px;
+        margin: 5px 0;
+    }
+    
+    input[type="text"] {
+        width: 80%;
+        padding: 8px;
+        margin-right: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    button {
+        padding: 8px 16px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    button:hover {
+        background-color: #45a049;
+    }
+    
+    
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Chatbot</h1>
+        <div id="chat-container"></div>
+        <input type="text" id="user-input" placeholder="Ask me anything...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+    var user_input = document.getElementById("user-input").value;
+
+    fetch("/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "user_input=" + encodeURIComponent(user_input),
+    })
+    .then(response => response.json())
+    .then(data => {
+        var chatContainer = document.getElementById("chat-container");
+        chatContainer.innerHTML += "<p>" + user_input + "</p>";
+        chatContainer.innerHTML += "<p>" + data.bot_response + "</p>";
+        document.getElementById("user-input").value = "";
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+    </script>
+</body>
+</html>
